@@ -1,0 +1,3 @@
+[submodule "lib/decomposition-library"]
+	path = lib/decomposition-library
+	url = https://github.com/YaaZ/decomposition-library.git
