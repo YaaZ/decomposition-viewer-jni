@@ -1,0 +1,25 @@
+#pragma once
+
+
+#define VMA_STATIC_VULKAN_FUNCTIONS 0
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+
+
+
+#if defined(_WIN32)
+
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <vulkan/vulkan.hpp>
+#define PLATFORM_SPECIFIC_SURFACE_EXTENSION_NAME  VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+
+#else
+
+#define VK_USE_PLATFORM_XLIB_KHR
+#include <vulkan/vulkan.hpp>
+#define PLATFORM_SPECIFIC_SURFACE_EXTENSION_NAME  VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+
+#endif
+
+
+
+#include <vk_mem_alloc.h>

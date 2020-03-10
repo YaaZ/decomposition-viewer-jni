@@ -1,3 +1,6 @@
 [submodule "lib/decomposition-library"]
 	path = lib/decomposition-library
 	url = https://github.com/YaaZ/decomposition-library.git
+[submodule "lib/VulkanMemoryAllocator"]
+	path = lib/VulkanMemoryAllocator
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
