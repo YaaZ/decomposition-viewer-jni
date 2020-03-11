@@ -47,8 +47,17 @@ struct JNIClasses : public JNIClassesBase {
            JFIELD(polygonSet, "polygonSet", "Lyaaz/decomposition/viewer/polygon/PolygonSet;")
            JFIELD(triangulation, "triangulation", "Lyaaz/decomposition/viewer/polygon/Triangulation;")
     )
+    JCLASS(NativeException, "yaaz/decomposition/viewer/NativeException",
+           JMETHOD(init, "<init>", "(Ljava/lang/String;)V")
+    )
 
 }* JClass;
+
+
+
+static void rethrowNativeException(JNIEnv* jni, std::exception& exception) {
+    jni->ThrowNew(JClass->NativeException, exception.what());
+}
 
 
 
@@ -117,8 +126,12 @@ extern "C" {
 jint JNI_OnLoad(JavaVM* vm, void*) {
     JNIEnv* jni;
     vm->GetEnv((void**) &jni, JNI_VERSION);
-    JClass = new JNIClasses(jni);
-    initVulkan();
+    try {
+        JClass = new JNIClasses(jni);
+        initVulkan();
+    } catch(std::exception& e) {
+        rethrowNativeException(jni, e);
+    }
     return JNI_VERSION;
 }
 
@@ -126,9 +139,13 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
 void JNI_OnUnload(JavaVM* vm, void*) {
     JNIEnv* jni;
     vm->GetEnv((void**) &jni, JNI_VERSION);
-    JClass->setJni(jni);
-    delete JClass;
-    destroyVulkan();
+    try {
+        JClass->setJni(jni);
+        delete JClass;
+        destroyVulkan();
+    } catch(std::exception& e) {
+        rethrowNativeException(jni, e);
+    }
 }
 
 
@@ -142,9 +159,14 @@ void JNI_OnUnload(JavaVM* vm, void*) {
  */
 JNIEXPORT jobject JNICALL Java_yaaz_decomposition_viewer_polygon_Triangulation_create
         (JNIEnv* jni, jclass, jobject polygonSet) {
-    auto polygons = convertJavaPolygonSet(jni, polygonSet);
-    auto triangulation = new Triangulation(polygons);
-    return jni->NewObject(JClass->Triangulation, JClass->Triangulation.init, (jlong) triangulation);
+    try {
+        auto polygons = convertJavaPolygonSet(jni, polygonSet);
+        auto triangulation = new Triangulation(polygons);
+        return jni->NewObject(JClass->Triangulation, JClass->Triangulation.init, (jlong) triangulation);
+    } catch(std::exception& e) {
+        rethrowNativeException(jni, e);
+        return nullptr;
+    }
 }
 
 /*
@@ -153,9 +175,13 @@ JNIEXPORT jobject JNICALL Java_yaaz_decomposition_viewer_polygon_Triangulation_c
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_yaaz_decomposition_viewer_polygon_Triangulation_destroy
-        (JNIEnv*, jclass, jlong address) {
-    auto triangulation = (Triangulation*) address;
-    delete triangulation;
+        (JNIEnv* jni, jclass, jlong address) {
+    try {
+        auto triangulation = (Triangulation*) address;
+        delete triangulation;
+    } catch(std::exception& e) {
+        rethrowNativeException(jni, e);
+    }
 }
 
 /*
@@ -165,14 +191,19 @@ JNIEXPORT void JNICALL Java_yaaz_decomposition_viewer_polygon_Triangulation_dest
  */
 JNIEXPORT jobjectArray JNICALL Java_yaaz_decomposition_viewer_polygon_Triangulation_getAllVertices
         (JNIEnv* jni, jobject javaTriangulationObject) {
-    Triangulation* triangulation = unwrapTriangulation(jni, javaTriangulationObject);
-    jobjectArray resultVertices = jni->NewObjectArray(triangulation->vertices.size(), JClass->Point2D, nullptr);
-    for (int i = 0; i < triangulation->vertices.size(); i++) {
-        glm::dvec2 vertex = triangulation->vertices[i];
-        jobject javaVertex = jni->NewObject(JClass->Point2DDouble, JClass->Point2DDouble.init, (jdouble) vertex.x, (jdouble) vertex.y);
-        jni->SetObjectArrayElement(resultVertices, i, javaVertex);
+    try {
+        Triangulation* triangulation = unwrapTriangulation(jni, javaTriangulationObject);
+        jobjectArray resultVertices = jni->NewObjectArray(triangulation->vertices.size(), JClass->Point2D, nullptr);
+        for (int i = 0; i < triangulation->vertices.size(); i++) {
+            glm::dvec2 vertex = triangulation->vertices[i];
+            jobject javaVertex = jni->NewObject(JClass->Point2DDouble, JClass->Point2DDouble.init, (jdouble) vertex.x, (jdouble) vertex.y);
+            jni->SetObjectArrayElement(resultVertices, i, javaVertex);
+        }
+        return resultVertices;
+    } catch(std::exception& e) {
+        rethrowNativeException(jni, e);
+        return nullptr;
     }
-    return resultVertices;
 }
 
 /*
@@ -182,13 +213,18 @@ JNIEXPORT jobjectArray JNICALL Java_yaaz_decomposition_viewer_polygon_Triangulat
  */
 JNIEXPORT jobjectArray JNICALL Java_yaaz_decomposition_viewer_polygon_Triangulation_getDecomposedPolygons
         (JNIEnv* jni, jobject javaTriangulationObject) {
-    Triangulation* triangulation = unwrapTriangulation(jni, javaTriangulationObject);
-    jobjectArray resultPolygons = jni->NewObjectArray(countPolygonsInTree(triangulation->polygonTree), JClass->DecomposedPolygon, nullptr);
-    int addedPolygons = 0;
-    for (const decomposition::PolygonTree& polygon : triangulation->polygonTree) {
-        addSubtreeOfDebugPolygonsToJavaArray(jni, polygon, resultPolygons, addedPolygons);
+    try {
+        Triangulation* triangulation = unwrapTriangulation(jni, javaTriangulationObject);
+        jobjectArray resultPolygons = jni->NewObjectArray(countPolygonsInTree(triangulation->polygonTree), JClass->DecomposedPolygon, nullptr);
+        int addedPolygons = 0;
+        for (const decomposition::PolygonTree& polygon : triangulation->polygonTree) {
+            addSubtreeOfDebugPolygonsToJavaArray(jni, polygon, resultPolygons, addedPolygons);
+        }
+        return resultPolygons;
+    } catch(std::exception& e) {
+        rethrowNativeException(jni, e);
+        return nullptr;
     }
-    return resultPolygons;
 }
 
 /*
@@ -198,14 +234,19 @@ JNIEXPORT jobjectArray JNICALL Java_yaaz_decomposition_viewer_polygon_Triangulat
  */
 JNIEXPORT jobjectArray JNICALL Java_yaaz_decomposition_viewer_polygon_Triangulation_getTriangles
         (JNIEnv* jni, jobject javaTriangulationObject) {
-    Triangulation* triangulation = unwrapTriangulation(jni, javaTriangulationObject);
-    jobjectArray resultTriangles = jni->NewObjectArray(triangulation->triangles.size(), JClass->Triangle, nullptr);
-    int addedTriangles = 0;
-    for (const glm::ivec3& triangle : triangulation->triangles) {
-        jobject javaTriangle = jni->NewObject(JClass->Triangle, JClass->Triangle.init, (jint) triangle.x, (jint) triangle.y, (jint) triangle.z);
-        jni->SetObjectArrayElement(resultTriangles, addedTriangles++, javaTriangle);
+    try {
+        Triangulation* triangulation = unwrapTriangulation(jni, javaTriangulationObject);
+        jobjectArray resultTriangles = jni->NewObjectArray(triangulation->triangles.size(), JClass->Triangle, nullptr);
+        int addedTriangles = 0;
+        for (const glm::ivec3& triangle : triangulation->triangles) {
+            jobject javaTriangle = jni->NewObject(JClass->Triangle, JClass->Triangle.init, (jint) triangle.x, (jint) triangle.y, (jint) triangle.z);
+            jni->SetObjectArrayElement(resultTriangles, addedTriangles++, javaTriangle);
+        }
+        return resultTriangles;
+    } catch(std::exception& e) {
+        rethrowNativeException(jni, e);
+        return nullptr;
     }
-    return resultTriangles;
 }
 
 
@@ -219,8 +260,13 @@ JNIEXPORT jobjectArray JNICALL Java_yaaz_decomposition_viewer_polygon_Triangulat
  */
 JNIEXPORT jobject JNICALL Java_yaaz_decomposition_viewer_rendering_VulkanRenderer_create
         (JNIEnv* jni, jclass) {
-    auto vulkanRenderer = createVulkanRenderer(jni);
-    return jni->NewObject(JClass->VulkanRenderer, JClass->VulkanRenderer.init, (jlong) vulkanRenderer);
+    try {
+        auto vulkanRenderer = createVulkanRenderer(jni);
+        return jni->NewObject(JClass->VulkanRenderer, JClass->VulkanRenderer.init, (jlong) vulkanRenderer);
+    } catch(std::exception& e) {
+        rethrowNativeException(jni, e);
+        return nullptr;
+    }
 }
 
 /*
@@ -229,9 +275,13 @@ JNIEXPORT jobject JNICALL Java_yaaz_decomposition_viewer_rendering_VulkanRendere
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_yaaz_decomposition_viewer_rendering_VulkanRenderer_destroy
-        (JNIEnv*, jclass, jlong address) {
-    auto vulkanRenderer = (JAWTVulkanRenderer*) address;
-    destroyVulkanRenderer(vulkanRenderer);
+        (JNIEnv* jni, jclass, jlong address) {
+    try {
+        auto vulkanRenderer = (JAWTVulkanRenderer*) address;
+        destroyVulkanRenderer(vulkanRenderer);
+    } catch(std::exception& e) {
+        rethrowNativeException(jni, e);
+    }
 }
 
 /*
@@ -241,11 +291,15 @@ JNIEXPORT void JNICALL Java_yaaz_decomposition_viewer_rendering_VulkanRenderer_d
  */
 JNIEXPORT void JNICALL Java_yaaz_decomposition_viewer_rendering_VulkanRenderer_paint
         (JNIEnv* jni, jobject javaVulkanRenderer, jobject) {
-    std::vector<std::vector<glm::dvec2>> polygonSet = convertJavaPolygonSet(jni,
-            jni->GetObjectField(javaVulkanRenderer, JClass->VulkanRenderer.polygonSet));
-    Triangulation* triangulation =
-            unwrapTriangulation(jni, jni->GetObjectField(javaVulkanRenderer, JClass->VulkanRenderer.triangulation));
-    unwrapVulkanRenderer(jni, javaVulkanRenderer)->render(jni, javaVulkanRenderer, polygonSet, triangulation);
+    try {
+        std::vector<std::vector<glm::dvec2>> polygonSet = convertJavaPolygonSet(jni,
+                jni->GetObjectField(javaVulkanRenderer, JClass->VulkanRenderer.polygonSet));
+        Triangulation* triangulation =
+                unwrapTriangulation(jni, jni->GetObjectField(javaVulkanRenderer, JClass->VulkanRenderer.triangulation));
+        unwrapVulkanRenderer(jni, javaVulkanRenderer)->render(jni, javaVulkanRenderer, polygonSet, triangulation);
+    } catch(std::exception& e) {
+        rethrowNativeException(jni, e);
+    }
 }
 
 
