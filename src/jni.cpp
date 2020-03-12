@@ -287,16 +287,16 @@ JNIEXPORT void JNICALL Java_yaaz_decomposition_viewer_rendering_VulkanRenderer_d
 /*
  * Class:     yaaz_decomposition_viewer_rendering_VulkanRenderer
  * Method:    paint
- * Signature: ()V
+ * Signature: (DD)V
  */
 JNIEXPORT void JNICALL Java_yaaz_decomposition_viewer_rendering_VulkanRenderer_paint
-        (JNIEnv* jni, jobject javaVulkanRenderer) {
+        (JNIEnv* jni, jobject javaVulkanRenderer, jdouble scaleX, jdouble scaleY) {
     try {
         std::vector<std::vector<glm::dvec2>> polygonSet = convertJavaPolygonSet(jni,
                 jni->GetObjectField(javaVulkanRenderer, JClass->VulkanRenderer.polygonSet));
         Triangulation* triangulation =
                 unwrapTriangulation(jni, jni->GetObjectField(javaVulkanRenderer, JClass->VulkanRenderer.triangulation));
-        unwrapVulkanRenderer(jni, javaVulkanRenderer)->render(jni, javaVulkanRenderer, polygonSet, triangulation);
+        unwrapVulkanRenderer(jni, javaVulkanRenderer)->render(jni, javaVulkanRenderer, polygonSet, triangulation, {scaleX, scaleY});
     } catch(std::exception& e) {
         rethrowNativeException(jni, e);
     }

@@ -88,7 +88,7 @@ public:
     }
 
     void render(JNIEnv* jni, jobject javaVulkanRenderer, const std::vector<std::vector<glm::dvec2>>& polygonSet,
-                const Triangulation* const triangulation) final {
+                const Triangulation* const triangulation, glm::dvec2 scale) final {
         bool justRetrievedDrawingSurface = false;
         if(jawtDrawingSurface == nullptr) {
             jawtDrawingSurface = jawt.GetDrawingSurface(jni, javaVulkanRenderer);
@@ -104,7 +104,7 @@ public:
             renderer = VulkanRenderer(vkInstance, *surface);
         }
         if(lock.boundsChanged || justRetrievedDrawingSurface) renderer.updateSwapchainContext();
-        renderer.render(polygonSet, triangulation);
+        renderer.render(polygonSet, triangulation, scale);
     }
 
     ~JAWTVulkanRendererImpl() final {

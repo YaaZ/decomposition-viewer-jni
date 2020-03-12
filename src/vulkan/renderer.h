@@ -575,14 +575,14 @@ public:
 
 
 
-    void render(const std::vector<std::vector<glm::dvec2>>& polygonSet, const Triangulation* const triangulation) {
+    void render(const std::vector<std::vector<glm::dvec2>>& polygonSet, const Triangulation* const triangulation, glm::dvec2 scale) {
         device->waitForFences({*renderingCompleteFence}, true, -1);
         device->resetFences({*renderingCompleteFence});
 
         {
             auto extent = (glm::vec2*) uniformBuffer.allocationInfo.pMappedData;
-            extent->x = (float) swapchain.extent.width;
-            extent->y = (float) swapchain.extent.height;
+            extent->x = (float) swapchain.extent.width / scale.x;
+            extent->y = (float) swapchain.extent.height / scale.y;
         }
         bool reRecordBuffer = false;
         if(triangulation != nullptr) {
