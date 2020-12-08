@@ -126,7 +126,7 @@ static vk::Instance createVkInstance() {
 
 #if !defined(NDEBUG)
 static vk::DebugUtilsMessengerEXT debugMessenger;
-VkBool32 debugCallback(
+VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageTypes,
         const VkDebugUtilsMessengerCallbackDataEXT* data,

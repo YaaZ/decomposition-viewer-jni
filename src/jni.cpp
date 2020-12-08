@@ -123,7 +123,7 @@ void destroyVulkan();
 extern "C" {
 
 
-jint JNI_OnLoad(JavaVM* vm, void*) {
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
     JNIEnv* jni;
     vm->GetEnv((void**) &jni, JNI_VERSION);
     try {
@@ -136,7 +136,7 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
 }
 
 
-void JNI_OnUnload(JavaVM* vm, void*) {
+JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void*) {
     JNIEnv* jni;
     vm->GetEnv((void**) &jni, JNI_VERSION);
     try {
