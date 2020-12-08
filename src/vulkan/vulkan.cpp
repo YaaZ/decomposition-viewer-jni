@@ -66,6 +66,7 @@ static vk::Instance createVkInstance() {
     bool debugUtilsExtensionFound = false;
     std::string surfaceExtensionName = VK_KHR_SURFACE_EXTENSION_NAME;
     std::string platformSurfaceExtensionName = PLATFORM_SPECIFIC_SURFACE_EXTENSION_NAME;
+    std::string physicalDeviceProperties2ExtensionName = VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
     std::vector<const char*> extensionNamePointers;
     for(vk::ExtensionProperties& extensionProperties : supportedExtensions) {
 #if !defined(NDEBUG)
@@ -79,8 +80,11 @@ static vk::Instance createVkInstance() {
         if(std::strcmp(platformSurfaceExtensionName.c_str(), extensionProperties.extensionName) == 0) {
             extensionNamePointers.push_back(platformSurfaceExtensionName.c_str());
         }
+        if(std::strcmp(physicalDeviceProperties2ExtensionName.c_str(), extensionProperties.extensionName) == 0) {
+            extensionNamePointers.push_back(physicalDeviceProperties2ExtensionName.c_str());
+        }
     }
-    if(extensionNamePointers.size() < 2) throw std::runtime_error("Instance presentation extensions were not found");
+    if(extensionNamePointers.size() < 3) throw std::runtime_error("Required extensions were not found");
 #if !defined(NDEBUG)
     if(debugUtilsExtensionFound) extensionNamePointers.push_back(debugUtilsExtensionName.c_str());
     else std::cerr << "Instance debug utils extension not found" << std::endl;

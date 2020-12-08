@@ -140,7 +140,7 @@ static RenderingContext createRenderingContext(vk::Instance vk, vk::SurfaceKHR s
         renderingContext.queueFamily = queueFamily;
         renderingContext.queue = renderingContext.device->getQueue(queueFamily, 0);
 
-        renderingContext.vma = createVmaAllocator(physicalDevice, *renderingContext.device, dedicatedAllocationExtensionSupported);
+        renderingContext.vma = createVmaAllocator(vk, physicalDevice, *renderingContext.device, dedicatedAllocationExtensionSupported, APP_VK_VERSION);
 
         return renderingContext;
 

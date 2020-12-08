@@ -173,31 +173,33 @@ namespace vma {
 
 
 
-static vma::Allocator createVmaAllocator(vk::PhysicalDevice physicalDevice, vk::Device device, bool dedicatedAllocation) {
+static vma::Allocator createVmaAllocator(vk::Instance instance, vk::PhysicalDevice physicalDevice, vk::Device device,
+                                         bool dedicatedAllocation, uint32_t vulkanApiVersion) {
     VmaAllocatorCreateFlags dedicatedAllocationBit =
             dedicatedAllocation ? VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT : 0;
     VmaVulkanFunctions functions {
-            /*vkGetPhysicalDeviceProperties*/       VULKAN_HPP_DEFAULT_DISPATCHER.vkGetPhysicalDeviceProperties,
-            /*vkGetPhysicalDeviceMemoryProperties*/ VULKAN_HPP_DEFAULT_DISPATCHER.vkGetPhysicalDeviceMemoryProperties,
-            /*vkAllocateMemory*/                    VULKAN_HPP_DEFAULT_DISPATCHER.vkAllocateMemory,
-            /*vkFreeMemory*/                        VULKAN_HPP_DEFAULT_DISPATCHER.vkFreeMemory,
-            /*vkMapMemory*/                         VULKAN_HPP_DEFAULT_DISPATCHER.vkMapMemory,
-            /*vkUnmapMemory*/                       VULKAN_HPP_DEFAULT_DISPATCHER.vkUnmapMemory,
-            /*vkFlushMappedMemoryRanges*/           VULKAN_HPP_DEFAULT_DISPATCHER.vkFlushMappedMemoryRanges,
-            /*vkInvalidateMappedMemoryRanges*/      VULKAN_HPP_DEFAULT_DISPATCHER.vkInvalidateMappedMemoryRanges,
-            /*vkBindBufferMemory*/                  VULKAN_HPP_DEFAULT_DISPATCHER.vkBindBufferMemory,
-            /*vkBindImageMemory*/                   VULKAN_HPP_DEFAULT_DISPATCHER.vkBindImageMemory,
-            /*vkGetBufferMemoryRequirements*/       VULKAN_HPP_DEFAULT_DISPATCHER.vkGetBufferMemoryRequirements,
-            /*vkGetImageMemoryRequirements*/        VULKAN_HPP_DEFAULT_DISPATCHER.vkGetImageMemoryRequirements,
-            /*vkCreateBuffer*/                      VULKAN_HPP_DEFAULT_DISPATCHER.vkCreateBuffer,
-            /*vkDestroyBuffer*/                     VULKAN_HPP_DEFAULT_DISPATCHER.vkDestroyBuffer,
-            /*vkCreateImage*/                       VULKAN_HPP_DEFAULT_DISPATCHER.vkCreateImage,
-            /*vkDestroyImage*/                      VULKAN_HPP_DEFAULT_DISPATCHER.vkDestroyImage,
-            /*vkCmdCopyBuffer*/                     VULKAN_HPP_DEFAULT_DISPATCHER.vkCmdCopyBuffer,
-            /*vkGetBufferMemoryRequirements2KHR*/   VULKAN_HPP_DEFAULT_DISPATCHER.vkGetBufferMemoryRequirements2KHR,
-            /*vkGetImageMemoryRequirements2KHR*/    VULKAN_HPP_DEFAULT_DISPATCHER.vkGetImageMemoryRequirements2KHR,
-            /*vkBindBufferMemory2KHR*/              VULKAN_HPP_DEFAULT_DISPATCHER.vkBindBufferMemory2KHR,
-            /*vkBindImageMemory2KHR*/               VULKAN_HPP_DEFAULT_DISPATCHER.vkBindImageMemory2KHR
+            /*vkGetPhysicalDeviceProperties*/           VULKAN_HPP_DEFAULT_DISPATCHER.vkGetPhysicalDeviceProperties,
+            /*vkGetPhysicalDeviceMemoryProperties*/     VULKAN_HPP_DEFAULT_DISPATCHER.vkGetPhysicalDeviceMemoryProperties,
+            /*vkAllocateMemory*/                        VULKAN_HPP_DEFAULT_DISPATCHER.vkAllocateMemory,
+            /*vkFreeMemory*/                            VULKAN_HPP_DEFAULT_DISPATCHER.vkFreeMemory,
+            /*vkMapMemory*/                             VULKAN_HPP_DEFAULT_DISPATCHER.vkMapMemory,
+            /*vkUnmapMemory*/                           VULKAN_HPP_DEFAULT_DISPATCHER.vkUnmapMemory,
+            /*vkFlushMappedMemoryRanges*/               VULKAN_HPP_DEFAULT_DISPATCHER.vkFlushMappedMemoryRanges,
+            /*vkInvalidateMappedMemoryRanges*/          VULKAN_HPP_DEFAULT_DISPATCHER.vkInvalidateMappedMemoryRanges,
+            /*vkBindBufferMemory*/                      VULKAN_HPP_DEFAULT_DISPATCHER.vkBindBufferMemory,
+            /*vkBindImageMemory*/                       VULKAN_HPP_DEFAULT_DISPATCHER.vkBindImageMemory,
+            /*vkGetBufferMemoryRequirements*/           VULKAN_HPP_DEFAULT_DISPATCHER.vkGetBufferMemoryRequirements,
+            /*vkGetImageMemoryRequirements*/            VULKAN_HPP_DEFAULT_DISPATCHER.vkGetImageMemoryRequirements,
+            /*vkCreateBuffer*/                          VULKAN_HPP_DEFAULT_DISPATCHER.vkCreateBuffer,
+            /*vkDestroyBuffer*/                         VULKAN_HPP_DEFAULT_DISPATCHER.vkDestroyBuffer,
+            /*vkCreateImage*/                           VULKAN_HPP_DEFAULT_DISPATCHER.vkCreateImage,
+            /*vkDestroyImage*/                          VULKAN_HPP_DEFAULT_DISPATCHER.vkDestroyImage,
+            /*vkCmdCopyBuffer*/                         VULKAN_HPP_DEFAULT_DISPATCHER.vkCmdCopyBuffer,
+            /*vkGetBufferMemoryRequirements2KHR*/       VULKAN_HPP_DEFAULT_DISPATCHER.vkGetBufferMemoryRequirements2KHR,
+            /*vkGetImageMemoryRequirements2KHR*/        VULKAN_HPP_DEFAULT_DISPATCHER.vkGetImageMemoryRequirements2KHR,
+            /*vkBindBufferMemory2KHR*/                  VULKAN_HPP_DEFAULT_DISPATCHER.vkBindBufferMemory2KHR,
+            /*vkBindImageMemory2KHR*/                   VULKAN_HPP_DEFAULT_DISPATCHER.vkBindImageMemory2KHR,
+            /*vkGetPhysicalDeviceMemoryProperties2KHR*/ VULKAN_HPP_DEFAULT_DISPATCHER.vkGetPhysicalDeviceMemoryProperties2KHR
     };
     return vma::Allocator({
         /*flags*/                       dedicatedAllocationBit,
@@ -209,6 +211,8 @@ static vma::Allocator createVmaAllocator(vk::PhysicalDevice physicalDevice, vk::
         /*frameInUseCount*/             0,
         /*pHeapSizeLimit*/              nullptr,
         /*pVulkanFunctions*/            &functions,
-        /*pRecordSettings*/             nullptr
+        /*pRecordSettings*/             nullptr,
+        /*instance*/                    instance,
+        /*vulkanApiVersion*/            vulkanApiVersion
     });
 }
